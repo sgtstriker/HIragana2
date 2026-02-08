@@ -375,6 +375,7 @@
                            'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
                            'ゃ', 'ゅ', 'ょ', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'っ'];
 
+        const [sessionProblems, setSessionProblems] = useState([]);
         const [currentProblem, setCurrentProblem] = useState(0);
         const [score, setScore] = useState(0);
         const [currentBlank, setCurrentBlank] = useState(0);
@@ -383,7 +384,27 @@
         const [choices, setChoices] = useState([]);
         const [showResult, setShowResult] = useState(false);
 
-        const problem = problems[currentProblem];
+        // Initialize session with 5 random problems
+        useEffect(() => {
+            startNewSession();
+        }, []);
+
+        const startNewSession = () => {
+            const shuffled = [...problems].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, 5);
+            setSessionProblems(selected);
+            setCurrentProblem(0);
+            setScore(0);
+            setShowResult(false);
+        };
+
+        if (sessionProblems.length === 0) {
+            return <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center">
+                <div className="text-4xl font-bold text-purple-600">よみこみちゅう...</div>
+            </div>;
+        }
+
+        const problem = sessionProblems[currentProblem];
         const totalBlanks = problem.blank.length;
 
         useEffect(() => {
@@ -428,7 +449,7 @@
                 } else {
                     setScore(score + 1);
                     setTimeout(() => {
-                        if (currentProblem < problems.length - 1) {
+                        if (currentProblem < sessionProblems.length - 1) {
                             setCurrentProblem(currentProblem + 1);
                         } else {
                             setShowResult(true);
@@ -438,7 +459,7 @@
             } else {
                 setFeedback({ type: 'incorrect', correctAnswer });
                 setTimeout(() => {
-                    if (currentProblem < problems.length - 1) {
+                    if (currentProblem < sessionProblems.length - 1) {
                         setCurrentProblem(currentProblem + 1);
                     } else {
                         setShowResult(true);
@@ -467,9 +488,7 @@
         };
 
         const resetQuiz = () => {
-            setCurrentProblem(0);
-            setScore(0);
-            setShowResult(false);
+            startNewSession();
         };
 
         if (showResult) {
@@ -481,12 +500,12 @@
                         </div>
                         <h2 className="text-4xl font-bold text-purple-600 mb-4">おつかれさま！</h2>
                         <p className="text-6xl font-bold text-gray-800 mb-2">{score}</p>
-                        <p className="text-2xl text-gray-600 mb-8">/ {problems.length} もんせいかい</p>
+                        <p className="text-2xl text-gray-600 mb-8">/ 5 もんせいかい</p>
                         <button
                             onClick={resetQuiz}
                             className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
                         >
-                            もういちど
+                            あたらしいもんだい
                         </button>
                     </div>
                 </div>
@@ -500,7 +519,7 @@
                     <div className="flex justify-between items-center mb-8">
                         <div className="bg-white rounded-full px-6 py-3 shadow-lg">
                             <span className="text-2xl font-bold text-gray-700">
-                                {currentProblem + 1} / {problems.length}
+                                {currentProblem + 1} / 5
                             </span>
                         </div>
                         <div className="bg-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
