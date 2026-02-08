@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ひらがなクイズ - 300問</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+```
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Lucide icons as SVG components
+    const Sparkles = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            <path d="M5 3v4"/>
+            <path d="M19 17v4"/>
+            <path d="M3 5h4"/>
+            <path d="M17 19h4"/>
+        </svg>
+    );
+
+    const Check = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+    );
+
+    const X = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    );
+
+    const Trophy = () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/>
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+        </svg>
+    );
+
+    const HiraganaQuizApp = () => {
+        const problems = [
+            // 動物 (50問)
+            { word: 'ねこ', blank: [0], answer: 'ね', image: '🐱', meaning: 'cat' },
+            { word: 'ねこ', blank: [1], answer: 'こ', image: '🐱', meaning: 'cat' },
+            { word: 'いぬ', blank: [0], answer: 'い', image: '🐶', meaning: 'dog' },
+            { word: 'いぬ', blank: [1], answer: 'ぬ', image: '🐶', meaning: 'dog' },
+            { word: 'とり', blank: [0], answer: 'と', image: '🐦', meaning: 'bird' },
+            { word: 'とり', blank: [1], answer: 'り', image: '🐦', meaning: 'bird' },
+            { word: 'うま', blank: [0], answer: 'う', image: '🐴', meaning: 'horse' },
+            { word: 'うま', blank: [1], answer: 'ま', image: '🐴', meaning: 'horse' },
+            { word: 'ぞう', blank: [0], answer: 'ぞ', image: '🐘', meaning: 'elephant' },
+            { word: 'ぞう', blank: [1], answer: 'う', image: '🐘', meaning: 'elephant' },
+            { word: 'さる', blank: [0], answer: 'さ', image: '🐵', meaning: 'monkey' },
+            { word: 'さる', blank: [1], answer: 'る', image: '🐵', meaning: 'monkey' },
+            { word: 'うし', blank: [0], answer: 'う', image: '🐮', meaning: 'cow' },
+            { word: 'うし', blank: [1], answer: 'し', image: '🐮', meaning: 'cow' },
+            { word: 'ぶた', blank: [0], answer: 'ぶ', image: '🐷', meaning: 'pig' },
+            { word: 'ぶた', blank: [1], answer: 'た', image: '🐷', meaning: 'pig' },
+            { word: 'くま', blank: [0], answer: 'く', image: '🐻', meaning: 'bear' },
+            { word: 'くま', blank: [1], answer: 'ま', image: '🐻', meaning: 'bear' },
+            { word: 'かえる', blank: [0], answer: 'か', image: '🐸', meaning: 'frog' },
+            { word: 'かえる', blank: [1], answer: 'え', image: '🐸', meaning: 'frog' },
+            { word: 'かえる', blank: [2], answer: 'る', image: '🐸', meaning: 'frog' },
+            { word: 'うさぎ', blank: [0], answer: 'う', image: '🐰', meaning: 'rabbit' },
+            { word: 'うさぎ', blank: [1], answer: 'さ', image: '🐰', meaning: 'rabbit' },
+            { word: 'うさぎ', blank: [2], answer: 'ぎ', image: '🐰', meaning: 'rabbit' },
+            { word: 'きつね', blank: [0], answer: 'き', image: '🦊', meaning: 'fox' },
+            { word: 'きつね', blank: [1], answer: 'つ', image: '🦊', meaning: 'fox' },
+            { word: 'きつね', blank: [2], answer: 'ね', image: '🦊', meaning: 'fox' },
+            { word: 'らいおん', blank: [0], answer: 'ら', image: '🦁', meaning: 'lion' },
+            { word: 'らいおん', blank: [2], answer: 'お', image: '🦁', meaning: 'lion' },
+            { word: 'らいおん', blank: [3], answer: 'ん', image: '🦁', meaning: 'lion' },
+            { word: 'ぺんぎん', blank: [0], answer: 'ぺ', image: '🐧', meaning: 'penguin' },
+            { word: 'ぺんぎん', blank: [2], answer: 'ぎ', image: '🐧', meaning: 'penguin' },
+            { word: 'ぺんぎん', blank: [3], answer: 'ん', image: '🐧', meaning: 'penguin' },
+            { word: 'かめ', blank: [0], answer: 'か', image: '🐢', meaning: 'turtle' },
+            { word: 'かめ', blank: [1], answer: 'め', image: '🐢', meaning: 'turtle' },
+            { word: 'へび', blank: [0], answer: 'へ', image: '🐍', meaning: 'snake' },
+            { word: 'へび', blank: [1], answer: 'び', image: '🐍', meaning: 'snake' },
+            { word: 'たこ', blank: [0], answer: 'た', image: '🐙', meaning: 'octopus' },
+            { word: 'たこ', blank: [1], answer: 'こ', image: '🐙', meaning: 'octopus' },
+            { word: 'かに', blank: [0], answer: 'か', image: '🦀', meaning: 'crab' },
+            { word: 'かに', blank: [1], answer: 'に', image: '🦀', meaning: 'crab' },
+            { word: 'えび', blank: [0], answer: 'え', image: '🦐', meaning: 'shrimp' },
+            { word: 'えび', blank: [1], answer: 'び', image: '🦐', meaning: 'shrimp' },
+            { word: 'さかな', blank: [0], answer: 'さ', image: '🐟', meaning: 'fish' },
+            { word: 'さかな', blank: [1], answer: 'か', image: '🐟', meaning: 'fish' },
+            { word: 'さかな', blank: [2], answer: 'な', image: '🐟', meaning: 'fish' },
+            { word: 'ちょう', blank: [0], answer: 'ち', image: '🦋', meaning: 'butterfly' },
+            { word: 'ちょう', blank: [2], answer: 'う', image: '🦋', meaning: 'butterfly' },
+            { word: 'むし', blank: [0], answer: 'む', image: '🐛', meaning: 'bug' },
+            { word: 'むし', blank: [1], answer: 'し', image: '🐛', meaning: 'bug' },
+
+            // 食べ物 (50問)
+            { word: 'りんご', blank: [0], answer: 'り', image: '🍎', meaning: 'apple' },
+            { word: 'りんご', blank: [2], answer: 'ご', image: '🍎', meaning: 'apple' },
+            { word: 'みかん', blank: [0], answer: 'み', image: '🍊', meaning: 'orange' },
+            { word: 'みかん', blank: [1], answer: 'か', image: '🍊', meaning: 'orange' },
+            { word: 'みかん', blank: [2], answer: 'ん', image: '🍊', meaning: 'orange' },
+            { word: 'ぶどう', blank: [0], answer: 'ぶ', image: '🍇', meaning: 'grapes' },
+            { word: 'ぶどう', blank: [2], answer: 'う', image: '🍇', meaning: 'grapes' },
+            { word: 'いちご', blank: [0], answer: 'い', image: '🍓', meaning: 'strawberry' },
+            { word: 'いちご', blank: [2], answer: 'ご', image: '🍓', meaning: 'strawberry' },
+            { word: 'めろん', blank: [0], answer: 'め', image: '🍈', meaning: 'melon' },
+            { word: 'めろん', blank: [2], answer: 'ん', image: '🍈', meaning: 'melon' },
+            { word: 'ばなな', blank: [0], answer: 'ば', image: '🍌', meaning: 'banana' },
+            { word: 'ばなな', blank: [2], answer: 'な', image: '🍌', meaning: 'banana' },
+            { word: 'もも', blank: [0], answer: 'も', image: '🍑', meaning: 'peach' },
+            { word: 'もも', blank: [1], answer: 'も', image: '🍑', meaning: 'peach' },
+            { word: 'すいか', blank: [0], answer: 'す', image: '🍉', meaning: 'watermelon' },
+            { word: 'すいか', blank: [2], answer: 'か', image: '🍉', meaning: 'watermelon' },
+            { word: 'ぱん', blank: [0], answer: 'ぱ', image: '🍞', meaning: 'bread' },
+            { word: 'ぱん', blank: [1], answer: 'ん', image: '🍞', meaning: 'bread' },
+            { word: 'けーき', blank: [0], answer: 'け', image: '🍰', meaning: 'cake' },
+            { word: 'けーき', blank: [2], answer: 'き', image: '🍰', meaning: 'cake' },
+            { word: 'くっきー', blank: [0], answer: 'く', image: '🍪', meaning: 'cookie' },
+            { word: 'くっきー', blank: [3], answer: 'き', image: '🍪', meaning: 'cookie' },
+            { word: 'あめ', blank: [0], answer: 'あ', image: '🍬', meaning: 'candy' },
+            { word: 'あめ', blank: [1], answer: 'め', image: '🍬', meaning: 'candy' },
+            { word: 'ちょこれーと', blank: [0], answer: 'ち', image: '🍫', meaning: 'chocolate' },
+            { word: 'ちょこれーと', blank: [4], answer: 'れ', image: '🍫', meaning: 'chocolate' },
+            { word: 'あいす', blank: [0], answer: 'あ', image: '🍦', meaning: 'ice cream' },
+            { word: 'あいす', blank: [2], answer: 'す', image: '🍦', meaning: 'ice cream' },
+            { word: 'ごはん', blank: [0], answer: 'ご', image: '🍚', meaning: 'rice' },
+            { word: 'ごはん', blank: [2], answer: 'ん', image: '🍚', meaning: 'rice' },
+            { word: 'かれー', blank: [0], answer: 'か', image: '🍛', meaning: 'curry' },
+            { word: 'かれー', blank: [1], answer: 'れ', image: '🍛', meaning: 'curry' },
+            { word: 'らーめん', blank: [0], answer: 'ら', image: '🍜', meaning: 'ramen' },
+            { word: 'らーめん', blank: [3], answer: 'ん', image: '🍜', meaning: 'ramen' },
+            { word: 'すし', blank: [0], answer: 'す', image: '🍣', meaning: 'sushi' },
+            { word: 'すし', blank: [1], answer: 'し', image: '🍣', meaning: 'sushi' },
+            { word: 'たまご', blank: [0], answer: 'た', image: '🥚', meaning: 'egg' },
+            { word: 'たまご', blank: [2], answer: 'ご', image: '🥚', meaning: 'egg' },
+            { word: 'ぴざ', blank: [0], answer: 'ぴ', image: '🍕', meaning: 'pizza' },
+            { word: 'ぴざ', blank: [1], answer: 'ざ', image: '🍕', meaning: 'pizza' },
+            { word: 'はんばーがー', blank: [0], answer: 'は', image: '🍔', meaning: 'hamburger' },
+            { word: 'はんばーがー', blank: [4], answer: 'が', image: '🍔', meaning: 'hamburger' },
+            { word: 'ほっとどっぐ', blank: [0], answer: 'ほ', image: '🌭', meaning: 'hot dog' },
+            { word: 'ほっとどっぐ', blank: [4], answer: 'ぐ', image: '🌭', meaning: 'hot dog' },
+            { word: 'さらだ', blank: [0], answer: 'さ', image: '🥗', meaning: 'salad' },
+            { word: 'さらだ', blank: [2], answer: 'だ', image: '🥗', meaning: 'salad' },
+            { word: 'のみもの', blank: [0], answer: 'の', image: '🥤', meaning: 'drink' },
+            { word: 'のみもの', blank: [2], answer: 'も', image: '🥤', meaning: 'drink' },
+            { word: 'みず', blank: [0], answer: 'み', image: '💧', meaning: 'water' },
+            { word: 'みず', blank: [1], answer: 'ず', image: '💧', meaning: 'water' },
+            { word: 'ぎゅうにゅう', blank: [0], answer: 'ぎ', image: '🥛', meaning: 'milk' },
+            { word: 'ぎゅうにゅう', blank: [4], answer: 'ゅ', image: '🥛', meaning: 'milk' },
+
+            // 自然 (50問)
+            { word: 'さくら', blank: [0], answer: 'さ', image: '🌸', meaning: 'cherry blossom' },
+            { word: 'さくら', blank: [2], answer: 'ら', image: '🌸', meaning: 'cherry blossom' },
+            { word: 'はな', blank: [0], answer: 'は', image: '🌼', meaning: 'flower' },
+            { word: 'はな', blank: [1], answer: 'な', image: '🌼', meaning: 'flower' },
+            { word: 'き', blank: [0], answer: 'き', image: '🌳', meaning: 'tree' },
+            { word: 'やま', blank: [0], answer: 'や', image: '⛰️', meaning: 'mountain' },
+            { word: 'やま', blank: [1], answer: 'ま', image: '⛰️', meaning: 'mountain' },
+            { word: 'うみ', blank: [0], answer: 'う', image: '🌊', meaning: 'sea' },
+            { word: 'うみ', blank: [1], answer: 'み', image: '🌊', meaning: 'sea' },
+            { word: 'かわ', blank: [0], answer: 'か', image: '🏞️', meaning: 'river' },
+            { word: 'かわ', blank: [1], answer: 'わ', image: '🏞️', meaning: 'river' },
+            { word: 'そら', blank: [0], answer: 'そ', image: '🌌', meaning: 'sky' },
+            { word: 'そら', blank: [1], answer: 'ら', image: '🌌', meaning: 'sky' },
+            { word: 'くも', blank: [0], answer: 'く', image: '☁️', meaning: 'cloud' },
+            { word: 'くも', blank: [1], answer: 'も', image: '☁️', meaning: 'cloud' },
+            { word: 'あめ', blank: [0], answer: 'あ', image: '🌧️', meaning: 'rain' },
+            { word: 'あめ', blank: [1], answer: 'め', image: '🌧️', meaning: 'rain' },
+            { word: 'ゆき', blank: [0], answer: 'ゆ', image: '❄️', meaning: 'snow' },
+            { word: 'ゆき', blank: [1], answer: 'き', image: '❄️', meaning: 'snow' },
+            { word: 'かぜ', blank: [0], answer: 'か', image: '💨', meaning: 'wind' },
+            { word: 'かぜ', blank: [1], answer: 'ぜ', image: '💨', meaning: 'wind' },
+            { word: 'たいよう', blank: [0], answer: 'た', image: '☀️', meaning: 'sun' },
+            { word: 'たいよう', blank: [3], answer: 'よ', image: '☀️', meaning: 'sun' },
+            { word: 'つき', blank: [0], answer: 'つ', image: '🌙', meaning: 'moon' },
+            { word: 'つき', blank: [1], answer: 'き', image: '🌙', meaning: 'moon' },
+            { word: 'ほし', blank: [0], answer: 'ほ', image: '⭐', meaning: 'star' },
+            { word: 'ほし', blank: [1], answer: 'し', image: '⭐', meaning: 'star' },
+            { word: 'にじ', blank: [0], answer: 'に', image: '🌈', meaning: 'rainbow' },
+            { word: 'にじ', blank: [1], answer: 'じ', image: '🌈', meaning: 'rainbow' },
+            { word: 'かみなり', blank: [0], answer: 'か', image: '⚡', meaning: 'lightning' },
+            { word: 'かみなり', blank: [3], answer: 'な', image: '⚡', meaning: 'lightning' },
+            { word: 'ひ', blank: [0], answer: 'ひ', image: '🔥', meaning: 'fire' },
+            { word: 'いし', blank: [0], answer: 'い', image: '🪨', meaning: 'stone' },
+            { word: 'いし', blank: [1], answer: 'し', image: '🪨', meaning: 'stone' },
+            { word: 'すな', blank: [0], answer: 'す', image: '🏖️', meaning: 'sand' },
+            { word: 'すな', blank: [1], answer: 'な', image: '🏖️', meaning: 'sand' },
+            { word: 'しま', blank: [0], answer: 'し', image: '🏝️', meaning: 'island' },
+            { word: 'しま', blank: [1], answer: 'ま', image: '🏝️', meaning: 'island' },
+            { word: 'もり', blank: [0], answer: 'も', image: '🌲', meaning: 'forest' },
+            { word: 'もり', blank: [1], answer: 'り', image: '🌲', meaning: 'forest' },
+            { word: 'くさ', blank: [0], answer: 'く', image: '🌿', meaning: 'grass' },
+            { word: 'くさ', blank: [1], answer: 'さ', image: '🌿', meaning: 'grass' },
+            { word: 'は', blank: [0], answer: 'は', image: '🍃', meaning: 'leaf' },
+            { word: 'たね', blank: [0], answer: 'た', image: '🌱', meaning: 'seed' },
+            { word: 'たね', blank: [1], answer: 'ね', image: '🌱', meaning: 'seed' },
+            { word: 'ちきゅう', blank: [0], answer: 'ち', image: '🌍', meaning: 'earth' },
+            { word: 'ちきゅう', blank: [3], answer: 'ゅ', image: '🌍', meaning: 'earth' },
+
+            // 物・道具 (50問)
+            { word: 'かさ', blank: [0], answer: 'か', image: '☂️', meaning: 'umbrella' },
+            { word: 'かさ', blank: [1], answer: 'さ', image: '☂️', meaning: 'umbrella' },
+            { word: 'ぼうし', blank: [0], answer: 'ぼ', image: '🎩', meaning: 'hat' },
+            { word: 'ぼうし', blank: [2], answer: 'し', image: '🎩', meaning: 'hat' },
+            { word: 'くつ', blank: [0], answer: 'く', image: '👟', meaning: 'shoes' },
+            { word: 'くつ', blank: [1], answer: 'つ', image: '👟', meaning: 'shoes' },
+            { word: 'めがね', blank: [0], answer: 'め', image: '👓', meaning: 'glasses' },
+            { word: 'めがね', blank: [2], answer: 'ね', image: '👓', meaning: 'glasses' },
+            { word: 'かばん', blank: [0], answer: 'か', image: '🎒', meaning: 'bag' },
+            { word: 'かばん', blank: [2], answer: 'ん', image: '🎒', meaning: 'bag' },
+            { word: 'ほん', blank: [0], answer: 'ほ', image: '📖', meaning: 'book' },
+            { word: 'ほん', blank: [1], answer: 'ん', image: '📖', meaning: 'book' },
+            { word: 'えんぴつ', blank: [0], answer: 'え', image: '✏️', meaning: 'pencil' },
+            { word: 'えんぴつ', blank: [3], answer: 'つ', image: '✏️', meaning: 'pencil' },
+            { word: 'けしごむ', blank: [0], answer: 'け', image: '🗑️', meaning: 'eraser' },
+            { word: 'けしごむ', blank: [3], answer: 'む', image: '🗑️', meaning: 'eraser' },
+            { word: 'かみ', blank: [0], answer: 'か', image: '📄', meaning: 'paper' },
+            { word: 'かみ', blank: [1], answer: 'み', image: '📄', meaning: 'paper' },
+            { word: 'はさみ', blank: [0], answer: 'は', image: '✂️', meaning: 'scissors' },
+            { word: 'はさみ', blank: [2], answer: 'み', image: '✂️', meaning: 'scissors' },
+            { word: 'のり', blank: [0], answer: 'の', image: '📎', meaning: 'glue' },
+            { word: 'のり', blank: [1], answer: 'り', image: '📎', meaning: 'glue' },
+            { word: 'とけい', blank: [0], answer: 'と', image: '⏰', meaning: 'clock' },
+            { word: 'とけい', blank: [2], answer: 'い', image: '⏰', meaning: 'clock' },
+            { word: 'でんわ', blank: [0], answer: 'で', image: '📞', meaning: 'phone' },
+            { word: 'でんわ', blank: [2], answer: 'わ', image: '📞', meaning: 'phone' },
+            { word: 'てれび', blank: [0], answer: 'て', image: '📺', meaning: 'TV' },
+            { word: 'てれび', blank: [2], answer: 'び', image: '📺', meaning: 'TV' },
+            { word: 'ぱそこん', blank: [0], answer: 'ぱ', image: '💻', meaning: 'computer' },
+            { word: 'ぱそこん', blank: [3], answer: 'ん', image: '💻', meaning: 'computer' },
+            { word: 'かめら', blank: [0], answer: 'か', image: '📷', meaning: 'camera' },
+            { word: 'かめら', blank: [2], answer: 'ら', image: '📷', meaning: 'camera' },
+            { word: 'でんち', blank: [0], answer: 'で', image: '🔋', meaning: 'battery' },
+            { word: 'でんち', blank: [2], answer: 'ち', image: '🔋', meaning: 'battery' },
+            { word: 'かぎ', blank: [0], answer: 'か', image: '🔑', meaning: 'key' },
+            { word: 'かぎ', blank: [1], answer: 'ぎ', image: '🔑', meaning: 'key' },
+            { word: 'ろうそく', blank: [0], answer: 'ろ', image: '🕯️', meaning: 'candle' },
+            { word: 'ろうそく', blank: [3], answer: 'く', image: '🕯️', meaning: 'candle' },
+            { word: 'でんきゅう', blank: [0], answer: 'で', image: '💡', meaning: 'light bulb' },
+            { word: 'でんきゅう', blank: [4], answer: 'ゅ', image: '💡', meaning: 'light bulb' },
+            { word: 'まど', blank: [0], answer: 'ま', image: '🪟', meaning: 'window' },
+            { word: 'まど', blank: [1], answer: 'ど', image: '🪟', meaning: 'window' },
+            { word: 'どあ', blank: [0], answer: 'ど', image: '🚪', meaning: 'door' },
+            { word: 'どあ', blank: [1], answer: 'あ', image: '🚪', meaning: 'door' },
+            { word: 'いす', blank: [0], answer: 'い', image: '🪑', meaning: 'chair' },
+            { word: 'いす', blank: [1], answer: 'す', image: '🪑', meaning: 'chair' },
+            { word: 'つくえ', blank: [0], answer: 'つ', image: '🪑', meaning: 'desk' },
+            { word: 'つくえ', blank: [2], answer: 'え', image: '🪑', meaning: 'desk' },
+            { word: 'べっど', blank: [0], answer: 'べ', image: '🛏️', meaning: 'bed' },
+            { word: 'べっど', blank: [2], answer: 'ど', image: '🛏️', meaning: 'bed' },
+            { word: 'そふぁ', blank: [0], answer: 'そ', image: '🛋️', meaning: 'sofa' },
+            { word: 'そふぁ', blank: [2], answer: 'ぁ', image: '🛋️', meaning: 'sofa' },
+
+            // 乗り物 (30問)
+            { word: 'くるま', blank: [0], answer: 'く', image: '🚗', meaning: 'car' },
+            { word: 'くるま', blank: [2], answer: 'ま', image: '🚗', meaning: 'car' },
+            { word: 'でんしゃ', blank: [0], answer: 'で', image: '🚆', meaning: 'train' },
+            { word: 'でんしゃ', blank: [3], answer: 'ゃ', image: '🚆', meaning: 'train' },
+            { word: 'ばす', blank: [0], answer: 'ば', image: '🚌', meaning: 'bus' },
+            { word: 'ばす', blank: [1], answer: 'す', image: '🚌', meaning: 'bus' },
+            { word: 'たくしー', blank: [0], answer: 'た', image: '🚕', meaning: 'taxi' },
+            { word: 'たくしー', blank: [2], answer: 'し', image: '🚕', meaning: 'taxi' },
+            { word: 'じてんしゃ', blank: [0], answer: 'じ', image: '🚲', meaning: 'bicycle' },
+            { word: 'じてんしゃ', blank: [4], answer: 'ゃ', image: '🚲', meaning: 'bicycle' },
+            { word: 'ひこうき', blank: [0], answer: 'ひ', image: '✈️', meaning: 'airplane' },
+            { word: 'ひこうき', blank: [3], answer: 'き', image: '✈️', meaning: 'airplane' },
+            { word: 'へりこぷたー', blank: [0], answer: 'へ', image: '🚁', meaning: 'helicopter' },
+            { word: 'へりこぷたー', blank: [4], answer: 'た', image: '🚁', meaning: 'helicopter' },
+            { word: 'ふね', blank: [0], answer: 'ふ', image: '🚢', meaning: 'ship' },
+            { word: 'ふね', blank: [1], answer: 'ね', image: '🚢', meaning: 'ship' },
+            { word: 'ろけっと', blank: [0], answer: 'ろ', image: '🚀', meaning: 'rocket' },
+            { word: 'ろけっと', blank: [3], answer: 'と', image: '🚀', meaning: 'rocket' },
+            { word: 'さぶまりん', blank: [0], answer: 'さ', image: '🚢', meaning: 'submarine' },
+            { word: 'さぶまりん', blank: [4], answer: 'ん', image: '🚢', meaning: 'submarine' },
+            { word: 'とらっく', blank: [0], answer: 'と', image: '🚚', meaning: 'truck' },
+            { word: 'とらっく', blank: [3], answer: 'く', image: '🚚', meaning: 'truck' },
+            { word: 'しょうぼうしゃ', blank: [0], answer: 'し', image: '🚒', meaning: 'fire truck' },
+            { word: 'しょうぼうしゃ', blank: [5], answer: 'ゃ', image: '🚒', meaning: 'fire truck' },
+            { word: 'きゅうきゅうしゃ', blank: [0], answer: 'き', image: '🚑', meaning: 'ambulance' },
+            { word: 'きゅうきゅうしゃ', blank: [6], answer: 'ゃ', image: '🚑', meaning: 'ambulance' },
+            { word: 'ぱとかー', blank: [0], answer: 'ぱ', image: '🚓', meaning: 'police car' },
+            { word: 'ぱとかー', blank: [3], answer: 'か', image: '🚓', meaning: 'police car' },
+
+            // スポーツ・遊び (30問)
+            { word: 'ぼーる', blank: [0], answer: 'ぼ', image: '⚽', meaning: 'ball' },
+            { word: 'ぼーる', blank: [2], answer: 'る', image: '⚽', meaning: 'ball' },
+            { word: 'やきゅう', blank: [0], answer: 'や', image: '⚾', meaning: 'baseball' },
+            { word: 'やきゅう', blank: [3], answer: 'ゅ', image: '⚾', meaning: 'baseball' },
+            { word: 'てにす', blank: [0], answer: 'て', image: '🎾', meaning: 'tennis' },
+            { word: 'てにす', blank: [2], answer: 'す', image: '🎾', meaning: 'tennis' },
+            { word: 'ばすけっと', blank: [0], answer: 'ば', image: '🏀', meaning: 'basketball' },
+            { word: 'ばすけっと', blank: [4], answer: 'と', image: '🏀', meaning: 'basketball' },
+            { word: 'ぴんぽん', blank: [0], answer: 'ぴ', image: '🏓', meaning: 'ping pong' },
+            { word: 'ぴんぽん', blank: [3], answer: 'ん', image: '🏓', meaning: 'ping pong' },
+            { word: 'ばどみんとん', blank: [0], answer: 'ば', image: '🏸', meaning: 'badminton' },
+            { word: 'ばどみんとん', blank: [5], answer: 'ん', image: '🏸', meaning: 'badminton' },
+            { word: 'ごるふ', blank: [0], answer: 'ご', image: '⛳', meaning: 'golf' },
+            { word: 'ごるふ', blank: [2], answer: 'ふ', image: '⛳', meaning: 'golf' },
+            { word: 'すけーと', blank: [0], answer: 'す', image: '⛸️', meaning: 'skate' },
+            { word: 'すけーと', blank: [3], answer: 'と', image: '⛸️', meaning: 'skate' },
+            { word: 'すきー', blank: [0], answer: 'す', image: '⛷️', meaning: 'ski' },
+            { word: 'すきー', blank: [2], answer: 'き', image: '⛷️', meaning: 'ski' },
+            { word: 'さーふぃん', blank: [0], answer: 'さ', image: '🏄', meaning: 'surfing' },
+            { word: 'さーふぃん', blank: [4], answer: 'ん', image: '🏄', meaning: 'surfing' },
+            { word: 'すいえい', blank: [0], answer: 'す', image: '🏊', meaning: 'swimming' },
+            { word: 'すいえい', blank: [3], answer: 'い', image: '🏊', meaning: 'swimming' },
+            { word: 'おもちゃ', blank: [0], answer: 'お', image: '🧸', meaning: 'toy' },
+            { word: 'おもちゃ', blank: [3], answer: 'ゃ', image: '🧸', meaning: 'toy' },
+            { word: 'げーむ', blank: [0], answer: 'げ', image: '🎮', meaning: 'game' },
+            { word: 'げーむ', blank: [2], answer: 'む', image: '🎮', meaning: 'game' },
+            { word: 'ぱずる', blank: [0], answer: 'ぱ', image: '🧩', meaning: 'puzzle' },
+            { word: 'ぱずる', blank: [2], answer: 'る', image: '🧩', meaning: 'puzzle' },
+
+            // 音楽・楽器 (20問)
+            { word: 'おんがく', blank: [0], answer: 'お', image: '🎵', meaning: 'music' },
+            { word: 'おんがく', blank: [3], answer: 'く', image: '🎵', meaning: 'music' },
+            { word: 'ぴあの', blank: [0], answer: 'ぴ', image: '🎹', meaning: 'piano' },
+            { word: 'ぴあの', blank: [2], answer: 'の', image: '🎹', meaning: 'piano' },
+            { word: 'ぎたー', blank: [0], answer: 'ぎ', image: '🎸', meaning: 'guitar' },
+            { word: 'ぎたー', blank: [2], answer: 'た', image: '🎸', meaning: 'guitar' },
+            { word: 'どらむ', blank: [0], answer: 'ど', image: '🥁', meaning: 'drum' },
+            { word: 'どらむ', blank: [2], answer: 'む', image: '🥁', meaning: 'drum' },
+            { word: 'とらんぺっと', blank: [0], answer: 'と', image: '🎺', meaning: 'trumpet' },
+            { word: 'とらんぺっと', blank: [5], answer: 'と', image: '🎺', meaning: 'trumpet' },
+            { word: 'ばいおりん', blank: [0], answer: 'ば', image: '🎻', meaning: 'violin' },
+            { word: 'ばいおりん', blank: [4], answer: 'ん', image: '🎻', meaning: 'violin' },
+            { word: 'まいく', blank: [0], answer: 'ま', image: '🎤', meaning: 'microphone' },
+            { word: 'まいく', blank: [2], answer: 'く', image: '🎤', meaning: 'microphone' },
+            { word: 'へっどほん', blank: [0], answer: 'へ', image: '🎧', meaning: 'headphones' },
+            { word: 'へっどほん', blank: [4], answer: 'ん', image: '🎧', meaning: 'headphones' },
+
+            // その他 (20問)
+            { word: 'いえ', blank: [0], answer: 'い', image: '🏠', meaning: 'house' },
+            { word: 'いえ', blank: [1], answer: 'え', image: '🏠', meaning: 'house' },
+            { word: 'がっこう', blank: [0], answer: 'が', image: '🏫', meaning: 'school' },
+            { word: 'がっこう', blank: [3], answer: 'う', image: '🏫', meaning: 'school' },
+            { word: 'びょういん', blank: [0], answer: 'び', image: '🏥', meaning: 'hospital' },
+            { word: 'びょういん', blank: [4], answer: 'ん', image: '🏥', meaning: 'hospital' },
+            { word: 'こうえん', blank: [0], answer: 'こ', image: '🏞️', meaning: 'park' },
+            { word: 'こうえん', blank: [3], answer: 'ん', image: '🏞️', meaning: 'park' },
+            { word: 'はし', blank: [0], answer: 'は', image: '🌉', meaning: 'bridge' },
+            { word: 'はし', blank: [1], answer: 'し', image: '🌉', meaning: 'bridge' },
+            { word: 'しろ', blank: [0], answer: 'し', image: '🏰', meaning: 'castle' },
+            { word: 'しろ', blank: [1], answer: 'ろ', image: '🏰', meaning: 'castle' },
+            { word: 'ゆうびんきょく', blank: [0], answer: 'ゆ', image: '🏤', meaning: 'post office' },
+            { word: 'ゆうびんきょく', blank: [5], answer: 'く', image: '🏤', meaning: 'post office' },
+            { word: 'ぎんこう', blank: [0], answer: 'ぎ', image: '🏦', meaning: 'bank' },
+            { word: 'ぎんこう', blank: [3], answer: 'う', image: '🏦', meaning: 'bank' },
+            { word: 'ほてる', blank: [0], answer: 'ほ', image: '🏨', meaning: 'hotel' },
+            { word: 'ほてる', blank: [2], answer: 'る', image: '🏨', meaning: 'hotel' },
+            { word: 'こんびに', blank: [0], answer: 'こ', image: '🏪', meaning: 'convenience store' },
+            { word: 'こんびに', blank: [3], answer: 'に', image: '🏪', meaning: 'convenience store' },
+        ];
+
+        const allHiragana = ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ', 
+                           'さ', 'し', 'す', 'せ', 'そ', 'た', 'ち', 'つ', 'て', 'と',
+                           'な', 'に', 'ぬ', 'ね', 'の', 'は', 'ひ', 'ふ', 'へ', 'ほ',
+                           'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ',
+                           'ら', 'り', 'る', 'れ', 'ろ', 'わ', 'を', 'ん',
+                           'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
+                           'だ', 'ぢ', 'づ', 'で', 'ど', 'ば', 'び', 'ぶ', 'べ', 'ぼ',
+                           'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
+                           'ゃ', 'ゅ', 'ょ', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'っ'];
+
+        const [currentProblem, setCurrentProblem] = useState(0);
+        const [score, setScore] = useState(0);
+        const [currentBlank, setCurrentBlank] = useState(0);
+        const [userAnswers, setUserAnswers] = useState({});
+        const [feedback, setFeedback] = useState(null);
+        const [choices, setChoices] = useState([]);
+        const [showResult, setShowResult] = useState(false);
+
+        const problem = problems[currentProblem];
+        const totalBlanks = problem.blank.length;
+
+        useEffect(() => {
+            generateChoices();
+            setUserAnswers({});
+            setCurrentBlank(0);
+            setFeedback(null);
+        }, [currentProblem]);
+
+        useEffect(() => {
+            generateChoices();
+        }, [currentBlank]);
+
+        const generateChoices = () => {
+            const correctAnswer = currentBlank === 0 ? problem.answer : problem.answer2;
+            const wrongChoices = allHiragana
+                .filter(h => h !== correctAnswer)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+            
+            const allChoices = [correctAnswer, ...wrongChoices]
+                .sort(() => Math.random() - 0.5);
+            
+            setChoices(allChoices);
+        };
+
+        const handleChoice = (choice) => {
+            const correctAnswer = currentBlank === 0 ? problem.answer : problem.answer2;
+            const isCorrect = choice === correctAnswer;
+            
+            if (isCorrect) {
+                const newAnswers = { ...userAnswers, [currentBlank]: choice };
+                setUserAnswers(newAnswers);
+                setFeedback('correct');
+                
+                if (currentBlank < totalBlanks - 1) {
+                    setTimeout(() => {
+                        setCurrentBlank(currentBlank + 1);
+                        setFeedback(null);
+                        generateChoices();
+                    }, 1000);
+                } else {
+                    setScore(score + 1);
+                    setTimeout(() => {
+                        if (currentProblem < problems.length - 1) {
+                            setCurrentProblem(currentProblem + 1);
+                        } else {
+                            setShowResult(true);
+                        }
+                    }, 1500);
+                }
+            } else {
+                setFeedback({ type: 'incorrect', correctAnswer });
+                setTimeout(() => {
+                    if (currentProblem < problems.length - 1) {
+                        setCurrentProblem(currentProblem + 1);
+                    } else {
+                        setShowResult(true);
+                    }
+                }, 2500);
+            }
+        };
+
+        const renderWord = () => {
+            return problem.word.split('').map((char, idx) => {
+                const blankIndex = problem.blank.indexOf(idx);
+                const isBlank = blankIndex !== -1;
+                const hasAnswer = isBlank && userAnswers[blankIndex] !== undefined;
+                
+                return (
+                    <span
+                        key={idx}
+                        className={`inline-block text-5xl font-bold mx-1 ${
+                            isBlank ? 'border-b-4 border-blue-400 min-w-[60px] text-center' : ''
+                        } ${hasAnswer ? 'text-blue-600' : ''}`}
+                    >
+                        {isBlank ? (hasAnswer ? userAnswers[blankIndex] : '　') : char}
+                    </span>
+                );
+            });
+        };
+
+        const resetQuiz = () => {
+            setCurrentProblem(0);
+            setScore(0);
+            setShowResult(false);
+        };
+
+        if (showResult) {
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 p-8 flex items-center justify-center">
+                    <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-md w-full text-center">
+                        <div className="text-yellow-500 mx-auto mb-6 flex justify-center">
+                            <Trophy />
+                        </div>
+                        <h2 className="text-4xl font-bold text-purple-600 mb-4">おつかれさま！</h2>
+                        <p className="text-6xl font-bold text-gray-800 mb-2">{score}</p>
+                        <p className="text-2xl text-gray-600 mb-8">/ {problems.length} もんせいかい</p>
+                        <button
+                            onClick={resetQuiz}
+                            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-transform shadow-lg"
+                        >
+                            もういちど
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 p-8">
+                <div className="max-w-4xl mx-auto">
+                    {/* ヘッダー */}
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="bg-white rounded-full px-6 py-3 shadow-lg">
+                            <span className="text-2xl font-bold text-gray-700">
+                                {currentProblem + 1} / {problems.length}
+                            </span>
+                        </div>
+                        <div className="bg-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
+                            <div className="text-yellow-500">
+                                <Sparkles />
+                            </div>
+                            <span className="text-2xl font-bold text-purple-600">{score}</span>
+                        </div>
+                    </div>
+
+                    {/* メインカード */}
+                    <div className="bg-white rounded-3xl shadow-2xl p-12">
+                        {/* 絵 */}
+                        <div className="text-center mb-8">
+                            <div className="text-9xl mb-4">{problem.image}</div>
+                            <div className="text-gray-500 text-lg">{problem.meaning}</div>
+                        </div>
+
+                        {/* 単語表示 */}
+                        <div className="text-center mb-12 min-h-[80px]">
+                            {renderWord()}
+                        </div>
+
+                        {/* 選択肢 */}
+                        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                            {choices.map((choice, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleChoice(choice)}
+                                    disabled={feedback !== null}
+                                    className={`p-6 text-4xl font-bold rounded-2xl transition-all transform ${
+                                        feedback === null ? 'hover:scale-105' : ''
+                                    } ${
+                                        feedback === 'correct' && choice === (currentBlank === 0 ? problem.answer : problem.answer2)
+                                            ? 'bg-green-500 text-white scale-105'
+                                            : feedback && feedback.type === 'incorrect' && choice === feedback.correctAnswer
+                                            ? 'bg-green-500 text-white scale-105'
+                                            : feedback !== null
+                                            ? 'bg-gray-300 text-gray-500'
+                                            : 'bg-gradient-to-br from-purple-200 to-pink-200 hover:from-purple-300 hover:to-pink-300'
+                                    } shadow-lg ${feedback !== null ? 'cursor-not-allowed' : ''}`}
+                                >
+                                    {choice}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* フィードバック */}
+                        {feedback && (
+                            <div className={`mt-8 text-center text-3xl font-bold ${
+                                feedback === 'correct' || feedback.type === 'correct' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                                {feedback === 'correct' ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Check />
+                                        <span>せいかい！</span>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="flex items-center justify-center gap-2 mb-2">
+                                            <X />
+                                            <span>ざんねん...</span>
+                                        </div>
+                                        <div className="text-2xl text-gray-600">
+                                            せいかいは「<span className="text-4xl text-blue-600 font-bold">{feedback.correctAnswer}</span>」でした
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    ReactDOM.render(<HiraganaQuizApp />, document.getElementById('root'));
+</script>
+```
+
+</body>
+</html>
